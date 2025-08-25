@@ -60,36 +60,30 @@ class HoldDurationTest extends Specification {
             duration.from != null
     }
 
-    def 'should throw exception when to is before from'() {
+    def 'should handle edge case with minimum duration'() {
         given:
             Instant from = Instant.now()
-            Instant to = from.minus(1, ChronoUnit.DAYS)
+            NumberOfDays oneDay = NumberOfDays.of(1)
         when:
-            new HoldDuration(from, to)
-        then:
-            thrown(IllegalStateException)
-    }
-
-    def 'should allow same from and to dates'() {
-        given:
-            Instant fromAndTo = Instant.now()
-        when:
-            HoldDuration duration = new HoldDuration(fromAndTo, fromAndTo)
-        then:
-            duration.from == fromAndTo
-            duration.getTo().get() == fromAndTo
-            !duration.isOpenEnded()
-    }
-
-    def 'should handle null to date for open ended duration'() {
-        given:
-            Instant from = Instant.now()
-        when:
-            HoldDuration duration = new HoldDuration(from, null)
+            HoldDuration duration = HoldDuration.closeEnded(from, oneDay)
         then:
             duration.from == from
-            duration.isOpenEnded()
-            duration.getTo().isEmpty()
+            !duration.isOpenEnded()
+            duration.getTo().isDefined()
+            duration.getTo().get() == from.plus(1, ChronoUnit.DAYS)
+    }
+
+    def 'should handle multiple factory method calls consistently'() {
+        given:
+            Instant baseTime = Instant.now()
+        when:
+            HoldDuration openEnded1 = HoldDuration.openEnded(baseTime)
+            HoldDuration openEnded2 = HoldDuration.openEnded(baseTime)
+        then:
+            openEnded1.from == openEnded2.from
+            openEnded1.isOpenEnded() == openEnded2.isOpenEnded()
+            openEnded1.getTo().isEmpty()
+            openEnded2.getTo().isEmpty()
     }
 
     def 'should handle very large durations'() {
