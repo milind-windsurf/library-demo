@@ -87,7 +87,8 @@ class PlacingOnHoldPolicyTest extends Specification {
     def 'overdueCheckoutsRejectionPolicy should reject when patron has overdue checkouts at same branch'() {
         given:
             AvailableBook book = circulatingAvailableBook()
-            Patron patronWithOverdueCheckouts = regularPatronWithOverdueCheckouts(book.libraryBranch.libraryBranchId)
+            Set<BookId> overdueBooks = [anyBookId(), anyBookId()] as Set
+            Patron patronWithOverdueCheckouts = regularPatronWithOverdueCheckouts(book.libraryBranch.libraryBranchId, overdueBooks)
         when:
             Either<Rejection, Allowance> result = overdueCheckoutsRejectionPolicy.apply(patronWithOverdueCheckouts, book)
         then:
