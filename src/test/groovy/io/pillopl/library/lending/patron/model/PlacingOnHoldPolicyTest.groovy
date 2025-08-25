@@ -34,7 +34,7 @@ class PlacingOnHoldPolicyTest extends Specification {
 
     def 'regularPatronCannotHoldRestrictedBooks should allow researcher patron holding restricted book'() {
         given:
-            Patron researcherPatron = researcherPatron()
+            Patron researcherPatron = researcherPatron(anyPatronId())
             AvailableBook restrictedBook = restrictedAvailableBook()
         when:
             Either<Rejection, Allowance> result = regularPatronCannotHoldRestrictedBooks.apply(researcherPatron, restrictedBook)
@@ -55,7 +55,7 @@ class PlacingOnHoldPolicyTest extends Specification {
 
     def 'onlyResearcherPatronsCanPlaceOpenEndedHolds should allow researcher patron'() {
         given:
-            Patron researcherPatron = researcherPatron()
+            Patron researcherPatron = researcherPatron(anyPatronId())
             AvailableBook book = circulatingAvailableBook()
         when:
             Either<Rejection, Allowance> result = onlyResearcherPatronsCanPlaceOpenEndedHolds.apply(researcherPatron, book)
